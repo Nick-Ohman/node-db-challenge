@@ -36,5 +36,80 @@ router.post('/resources', (req, res) => {
         })
 })
 
+router.get('/projects', (req, res) => {
+    // retrieve a list of projects (GET /api/projects)
+    Projects.getProjects()
+        .then(projects => {
+            res.status(200).json({
+                data:projects
+            })
+        })
+        .catch(error => {
+            res.status(500).json({
+                errorMessage: "error retrieving projects",
+                error
+            })
+        })
+})
+
+router.post('/projects', (req, res) => {
+    // add projects (POST /api/projects)
+    const project = req.body
+    Projects.addProject(project)
+        .then(info => {
+            res.status(201).json({
+                data: info
+            })
+        })
+        .catch(error => {
+            res.status(500).json({
+                errorMessage: "Error adding project",
+                error
+            })
+        })
+})
+
+router.get('/projects/:id/tasks', (req, res) => {
+    const proId = req.params.id
+    Projects.findTasks(proId)
+        .then(tasks => {
+            res.status(200).json({
+                data: tasks
+            })
+        })
+        .catch(error => {
+            res.status(500).json({
+                errorMessage: 'error retrieveing tasks',
+                error
+            })
+        })
+})
+
+router.post('/projects/:id/tasks', (req, res) => {
+    // add a task (POST /api/projects/:id/tasks)
+    const taskData = req.body
+    const proId = req.params.id
+    Projects.findProjectById(proId)
+        .then(project => {
+            if(project){
+                Projects.addTask(taskData, proId)
+                .then(task => {
+                    res.status(201).json(task)
+                })
+            }else{
+                res.status(500).json({
+                    errorMessage: "Could not add post"
+                })
+            }
+        })
+        .catch(error => {
+            res.status(500).json({
+                errorMessage: "Could not add tasks",
+                error
+            })
+        })
+})
+
+
 
 module.exports = router;
